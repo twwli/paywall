@@ -18,38 +18,73 @@ function floatmagazin_paywall_add_admin_menu() {
 add_action('admin_menu', 'floatmagazin_paywall_add_admin_menu');
 
 /**
- * Registers the plugin settings (with optional sanitize callback).
+ * Registers the plugin settings with a sanitize callback.
  */
 function floatmagazin_paywall_register_settings() {
     register_setting(
         'floatmagazin_paywall_options_group',
-        'floatmagazin_paywall_options'
-        // Optionally add: array('sanitize_callback' => 'floatmagazin_paywall_sanitize_options')
+        'floatmagazin_paywall_options',
+        array(
+            'sanitize_callback' => 'floatmagazin_paywall_sanitize_options'
+        )
     );
 }
 add_action('admin_init', 'floatmagazin_paywall_register_settings');
 
 /**
+ * This sanitize callback ensures that if the checkbox paywall_active is unchecked,
+ * we store 'false' instead of reusing an old value.
+ *
+ * You can also sanitize other fields here if needed.
+ */
+function floatmagazin_paywall_sanitize_options($input) {
+    // If paywall_active is not set in the form submission, set it to false.
+    if (!isset($input['paywall_active'])) {
+        $input['paywall_active'] = false;
+    } else {
+        // Convert the string "1" to a boolean true
+        $input['paywall_active'] = (bool)$input['paywall_active'];
+    }
+
+    // OPTIONAL: If you want to sanitize text fields further, do so here:
+    // if (isset($input['titre_paywall'])) {
+    //     $input['titre_paywall'] = sanitize_text_field($input['titre_paywall']);
+    // }
+    // if (isset($input['titre_paywall_en'])) {
+    //     $input['titre_paywall_en'] = sanitize_text_field($input['titre_paywall_en']);
+    // }
+    // if (isset($input['texte_paywall'])) {
+    //     $input['texte_paywall'] = wp_kses_post($input['texte_paywall']);
+    // }
+    // if (isset($input['texte_paywall_en'])) {
+    //     $input['texte_paywall_en'] = wp_kses_post($input['texte_paywall_en']);
+    // }
+    // etc.
+
+    return $input;
+}
+
+/**
  * Displays the settings page.
  */
 function floatmagazin_paywall_options_page() {
-    // Check capability
+    // Check user capability
     if (!current_user_can('manage_options')) {
         return;
     }
 
-    // Retrieve existing options to pre-fill the form
+    // Retrieve existing options (or an empty array if none)
     $options = get_option('floatmagazin_paywall_options', array());
 
-    // Default values
-    $paywall_active    = isset($options['paywall_active'])      ? (bool)$options['paywall_active']      : true;
-    $titre_paywall     = isset($options['titre_paywall'])       ? $options['titre_paywall']            : 'float lebt von Luft und Liebe';
-    $titre_paywall_en  = isset($options['titre_paywall_en'])    ? $options['titre_paywall_en']         : 'float lives from air and love';
-    $texte_paywall     = isset($options['texte_paywall'])       ? $options['texte_paywall']            : '';
-    $texte_paywall_en  = isset($options['texte_paywall_en'])    ? $options['texte_paywall_en']         : '';
-    $paragraphe_cible  = isset($options['paragraphe_cible'])    ? (int)$options['paragraphe_cible']    : 2;
-    $age_minimum       = isset($options['age_minimum'])         ? (int)$options['age_minimum']         : 14;
-    $lang_select       = isset($options['lang_select'])          ? $options['lang_select']              : 'de';
+    // Read each option, providing a default value if it's not set
+    $paywall_active    = isset($options['paywall_active'])  ? (bool)$options['paywall_active']  : true;
+    $titre_paywall     = isset($options['titre_paywall'])   ? $options['titre_paywall']        : 'float lebt von Luft und Liebe';
+    $titre_paywall_en  = isset($options['titre_paywall_en'])? $options['titre_paywall_en']     : 'float lives from air and love';
+    $texte_paywall     = isset($options['texte_paywall'])   ? $options['texte_paywall']        : '';
+    $texte_paywall_en  = isset($options['texte_paywall_en'])? $options['texte_paywall_en']     : '';
+    $paragraphe_cible  = isset($options['paragraphe_cible'])? (int)$options['paragraphe_cible']: 2;
+    $age_minimum       = isset($options['age_minimum'])     ? (int)$options['age_minimum']     : 14;
+    $lang_select       = isset($options['lang_select'])      ? $options['lang_select']          : 'de';
     ?>
     <div class="wrap">
         <h1>FloatMagazin Paywall Settings</h1>
