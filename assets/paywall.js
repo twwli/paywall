@@ -1,103 +1,77 @@
-document.addEventListener('DOMContentLoaded', function() {
-    var accessCloseButton = document.getElementById('vs-access-close');
-    var accessContainer = document.getElementById('vs-access-container');
-    var accessContent = document.getElementById('vs-content');
-    var pageLinksContainers = document.querySelectorAll('.page-links-container');
+document.addEventListener('DOMContentLoaded', function () {
+    console.log("paywall-simple.js: DOM is ready.");
 
-    // Check if the access has already been closed
-    var accessClosed = localStorage.getItem('accessClosed');
+    // Sélection des éléments clés
+    const paywallContainer = document.getElementById('vs-access-container');
+    const paywallLogo = document.getElementById('vs-logo');
+    const paywallMessage = document.getElementById('vs-access-message');
+    const closeBtn = document.getElementById('vs-access-close');
 
-    // Function to hide the .page-links-container elements
-    function hidePageLinksContainers() {
-        if (pageLinksContainers.length > 0) {
-            pageLinksContainers.forEach(function(container) {
-                container.style.display = 'none';
-                console.log('.page-links-container hidden');
-            });
-        }
+    // Vérification initiale des éléments
+    if (!paywallContainer) {
+        console.warn("paywall-simple.js: #vs-access-container NOT found. Paywall may not be present.");
+        return;
+    }
+    console.log("paywall-simple.js: #vs-access-container detected.");
+
+    if (!closeBtn) {
+        console.warn("paywall-simple.js: #vs-access-close button NOT found.");
+    } else {
+        console.log("paywall-simple.js: #vs-access-close button detected.");
     }
 
-    // Function to show the .page-links-container elements
-    function showPageLinksContainers() {
-        if (pageLinksContainers.length > 0) {
-            pageLinksContainers.forEach(function(container) {
-                container.style.display = 'block';
-                console.log('.page-links-container shown');
-            });
-        }
-    }
+    // Fonction pour activer immédiatement le contenu et supprimer les éléments du paywall
+    function closePaywall() {
+        console.log("paywall-simple.js: Closing paywall...");
 
-    // Function to close the access
-    function closeAccess() {
-        if (accessContainer && accessContent && accessContainer.parentNode) {
-            accessContainer.parentNode.insertBefore(accessContent, accessContainer);
-            console.log('vs-content moved outside of vs-access-container');
+        if (paywallContainer) {
+            paywallContainer.classList.add('content-visible');
+            console.log("paywall-simple.js: Added .content-visible to #vs-access-container.");
+        } else {
+            console.warn("paywall-simple.js: #vs-access-container is missing, cannot add .content-visible.");
         }
 
-        if (accessContent) {
-            accessContent.id = 'vs-content-hidden';
-            console.log('vs-content renamed to vs-content-hidden');
+        // Supprimer immédiatement #vs-logo s'il existe
+        if (paywallLogo) {
+            paywallLogo.remove();
+            console.log("paywall-simple.js: #vs-logo removed.");
+        } else {
+            console.warn("paywall-simple.js: #vs-logo not found, skipping.");
         }
 
-        if (accessContainer && accessContainer.parentNode) {
-            accessContainer.parentNode.removeChild(accessContainer);
-            console.log('vs-access-container removed');
+        // Supprimer immédiatement #vs-access-message s'il existe
+        if (paywallMessage) {
+            paywallMessage.remove();
+            console.log("paywall-simple.js: #vs-access-message removed.");
+        } else {
+            console.warn("paywall-simple.js: #vs-access-message not found, skipping.");
         }
 
-        // Show the .page-links-container elements
-        showPageLinksContainers();
-
-        // Save to localStorage for 3 days
-        var expiryDate = new Date();
+        // Sauvegarde dans localStorage pour empêcher le retour du paywall
+        const expiryDate = new Date();
         expiryDate.setDate(expiryDate.getDate() + 3);
         localStorage.setItem('accessClosed', 'true');
         localStorage.setItem('accessExpiry', expiryDate.getTime());
-        console.log('Access closed, expiry date set to:', expiryDate);
+        console.log("paywall-simple.js: Access closed, expiry date set to:", expiryDate);
     }
 
-    // Clear localStorage if the expiry date has passed
-    var accessExpiry = localStorage.getItem('accessExpiry');
-    if (accessExpiry && new Date().getTime() > accessExpiry) {
-        localStorage.removeItem('accessClosed');
-        localStorage.removeItem('accessExpiry');
-        console.log('Access expiry date passed, localStorage cleared');
-        // The access will be displayed again
-        accessClosed = null;
+    // Attacher l'événement au bouton #vs-access-close (si trouvé)
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function (event) {
+            event.preventDefault();
+            console.log("paywall-simple.js: Click detected on #vs-access-close.");
+            closePaywall();
+        });
     }
 
-    // On page load
-    if (accessClosed === 'true') {
-        // Access has already been closed, apply changes directly
-        if (accessContainer && accessContent && accessContainer.parentNode) {
-            accessContainer.parentNode.insertBefore(accessContent, accessContainer);
-            console.log('vs-content moved outside of vs-access-container (already closed)');
-        }
+    // Vérification du localStorage pour cacher immédiatement le paywall si déjà fermé
+    const accessClosed = localStorage.getItem('accessClosed');
+    const accessExpiry = localStorage.getItem('accessExpiry');
 
-        if (accessContent) {
-            accessContent.id = 'vs-content-hidden';
-            console.log('vs-content renamed to vs-content-hidden (already closed)');
-        }
-
-        if (accessContainer && accessContainer.parentNode) {
-            accessContainer.parentNode.removeChild(accessContainer);
-            console.log('vs-access-container removed (already closed)');
-        }
-
-        // Show the .page-links-container elements
-        showPageLinksContainers();
+    if (accessClosed === 'true' && accessExpiry && new Date().getTime() < accessExpiry) {
+        console.log("paywall-simple.js: Paywall is already closed based on localStorage.");
+        closePaywall();
     } else {
-        // Access is visible, hide the .page-links-container elements
-        if (accessContainer) {
-            hidePageLinksContainers();
-        }
-
-        if (accessCloseButton) {
-            accessCloseButton.addEventListener('click', function() {
-                console.log('vs-access-close button clicked');
-                closeAccess();
-            });
-        } else {
-            console.log('vs-access-close button not found');
-        }
+        console.log("paywall-simple.js: Paywall is visible.");
     }
 });

@@ -17,28 +17,6 @@ if (!defined('ABSPATH')) {
 require_once plugin_dir_path(__FILE__) . 'includes/admin-settings.php';
 
 /**
- * Enqueue paywall CSS/JS only for the 4 custom post types.
- */
-function floatmagazin_paywall_enqueue_assets() {
-    if (is_singular(array('boote', 'leute', 'orte', 'dinge'))) {
-        wp_enqueue_style(
-            'floatmagazin-paywall-style',
-            plugins_url('assets/paywall.css', __FILE__),
-            array(),
-            '1.0'
-        );
-        wp_enqueue_script(
-            'floatmagazin-paywall-script',
-            plugins_url('assets/paywall.js', __FILE__),
-            array(),
-            '1.0',
-            true
-        );
-    }
-}
-add_action('wp_enqueue_scripts', 'floatmagazin_paywall_enqueue_assets');
-
-/**
  * Main function to inject the paywall into the_content.
  */
 function floatmagazin_paywall_inject($content) {
@@ -147,7 +125,7 @@ function floatmagazin_paywall_inject($content) {
                     <?php echo esc_html($btn_label); ?>
                 </a>
                 <!-- Close button -->
-                <button id="vs-access-close">
+                <button id="vs-access-close" onclick="console.log('Inline click detected')">
                     <svg height="16.971" viewBox="0 0 16.971 16.971" width="16.971" xmlns="http://www.w3.org/2000/svg">
                         <g fill="none" stroke="#1a1a1a" stroke-linecap="round" stroke-width="2">
                             <path d="m0 0h20" transform="matrix(.70710678 .70710678 -.70710678 .70710678 1.4137717 1.41472351724)"></path>
@@ -189,3 +167,26 @@ function floatmagazin_paywall_inject($content) {
     return $new_content;
 }
 add_filter('the_content', 'floatmagazin_paywall_inject', 999);
+
+
+/**
+ * Enqueue paywall CSS/JS only for the 4 custom post types.
+ */
+function floatmagazin_paywall_enqueue_assets() {
+    if (is_singular(array('boote', 'leute', 'orte', 'dinge'))) {
+        wp_enqueue_style(
+            'floatmagazin-paywall-style',
+            plugins_url('assets/paywall.css', __FILE__),
+            array(),
+            '1.1'
+        );
+        wp_enqueue_script(
+            'floatmagazin-paywall-simple-script',
+            plugins_url('assets/paywall.js', __FILE__),
+            array(),
+            '1.0',
+            true
+        );
+    }
+}
+add_action('wp_enqueue_scripts', 'floatmagazin_paywall_enqueue_assets');

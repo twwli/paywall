@@ -20,6 +20,11 @@
     background: #fff;
 }
 
+#vs-access-container.content-visible:before,
+#vs-access-container.content-visible:after {
+    display: none;
+} 
+
 #vs-logo {
     position: absolute;
     width: 95px;
@@ -41,6 +46,12 @@
     overflow: hidden;
 }
 
+#vs-content.is-visible {
+    pointer-events: initial;
+    height: auto;
+    overflow: visible;
+}
+
 #vs-content:before {
     content: "";
     display: block;
@@ -48,6 +59,16 @@
     inset: 0;
     background-color: #fff;
     z-index: 1;
+}
+
+#vs-access-container.content-visible #vs-content {
+    pointer-events: initial;
+    height: auto;
+    overflow: visible;
+}
+
+#vs-access-container.content-visible #vs-content:before {
+    display: none;
 }
 
 #vs-access-message {
