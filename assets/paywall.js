@@ -18,7 +18,7 @@ function attachPaywallCloseEvent() {
     });
 }
 
-// **Fermer le paywall immédiatement**
+// **Fermer le paywall immédiatement et stocker l'horodatage**
 function closePaywall() {
     console.log("paywall.js: Closing paywall...");
 
@@ -41,15 +41,25 @@ function closePaywall() {
         console.log("paywall.js: #vs-access-message removed.");
     }
 
-    // **Stocker l’état du paywall dans localStorage**
-    localStorage.setItem('accessClosed', 'true');
-    console.log("paywall.js: Paywall state saved in localStorage.");
+    // **Stocker l’horodatage de fermeture dans localStorage**
+    localStorage.setItem('accessClosed', Date.now());
+    console.log("paywall.js: Paywall state saved in localStorage with timestamp.");
 }
 
-// **Vérifier si le paywall doit être caché immédiatement**
+// **Vérifier si le paywall doit être caché ou réactivé après 12 heures**
 function checkPaywallState() {
     console.log("paywall.js: Checking paywall state...");
-    if (localStorage.getItem('accessClosed') === 'true') {
-        closePaywall();
+    
+    const accessClosedTimestamp = localStorage.getItem('accessClosed');
+    if (accessClosedTimestamp) {
+        const elapsedTime = Date.now() - parseInt(accessClosedTimestamp, 10);
+        const twelveHours = 12 * 60 * 60 * 1000; // 12 heures en millisecondes
+
+        if (elapsedTime < twelveHours) {
+            closePaywall();
+        } else {
+            localStorage.removeItem('accessClosed'); // Supprime l'entrée après 12h
+            console.log("paywall.js: Paywall reset after 12 hours.");
+        }
     }
 }
