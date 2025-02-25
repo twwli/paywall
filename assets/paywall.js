@@ -13,7 +13,7 @@ function attachPaywallCloseEvent() {
         if (closeBtn) {
             console.log("paywall.js: Click detected on #vs-access-close.");
             event.preventDefault();
-            closePaywall(); // Lorsque l'utilisateur clique, on « ferme » le paywall
+            closePaywall(); // Lorsque l'utilisateur clique, on « ferme » le paywall
         }
     });
 }
@@ -25,10 +25,7 @@ function openPaywall() {
     const paywallContainer = document.getElementById('vs-access-container');
     const paywallLogo = document.getElementById('vs-logo');
     const paywallMessage = document.getElementById('vs-access-message');
-    const pagination = document.querySelector('.page-links-container');
-
-    // Si besoin, on s’assure que #vs-logo et #vs-access-message sont bien présents
-    // (Dans ton cas, ils peuvent déjà être présents dans le HTML.)
+    const bottomPagination = document.getElementById('bottom-pagination');
 
     // Masquer le contenu
     if (paywallContainer) {
@@ -36,12 +33,12 @@ function openPaywall() {
         console.log("paywall.js: #vs-access-container : content-visible removed.");
     }
 
-    // Masquer la pagination
-    if (pagination) {
-        pagination.style.setProperty('display', 'none', 'important');
-        console.log("paywall.js: Pagination hidden because paywall is open.");
+    // Masquer la pagination du bas
+    if (bottomPagination) {
+        bottomPagination.style.setProperty('display', 'none', 'important');
+        console.log("paywall.js: Bottom pagination hidden because paywall is open.");
     } else {
-        waitForPaginationAndHide();
+        waitForBottomPaginationAndHide();
     }
 }
 
@@ -52,7 +49,7 @@ function closePaywall() {
     const paywallContainer = document.getElementById('vs-access-container');
     const paywallLogo = document.getElementById('vs-logo');
     const paywallMessage = document.getElementById('vs-access-message');
-    const pagination = document.querySelector('.page-links-container');
+    const bottomPagination = document.getElementById('bottom-pagination');
 
     // Supprimer les éléments du paywall
     if (paywallLogo) {
@@ -71,10 +68,10 @@ function closePaywall() {
         console.log("paywall.js: #vs-access-container now has .content-visible.");
     }
 
-    // Réafficher la pagination
-    if (pagination) {
-        pagination.style.display = 'block';
-        console.log("paywall.js: Pagination visible again because paywall is closed.");
+    // Réafficher la pagination du bas
+    if (bottomPagination) {
+        bottomPagination.style.display = 'block';
+        console.log("paywall.js: Bottom pagination visible again because paywall is closed.");
     }
 
     // Enregistrer le fait que l'utilisateur a fermé le paywall
@@ -83,15 +80,15 @@ function closePaywall() {
 }
 
 // Observer la pagination si elle est chargée plus tard
-function waitForPaginationAndHide() {
-    console.log("paywall.js: Waiting for pagination to be added...");
+function waitForBottomPaginationAndHide() {
+    console.log("paywall.js: Waiting for bottom pagination to be added...");
 
     const observer = new MutationObserver(() => {
-        const pagination = document.querySelector('.page-links-container');
-        if (pagination) {
-            console.log("paywall.js: Pagination detected by MutationObserver.", pagination);
-            pagination.style.display = 'none';
-            console.log("paywall.js: Pagination hidden via MutationObserver because paywall is open.");
+        const bottomPagination = document.getElementById('bottom-pagination');
+        if (bottomPagination) {
+            console.log("paywall.js: Bottom pagination detected by MutationObserver.", bottomPagination);
+            bottomPagination.style.setProperty('display', 'none', 'important');
+            console.log("paywall.js: Bottom pagination hidden via MutationObserver because paywall is open.");
             observer.disconnect();
         }
     });
