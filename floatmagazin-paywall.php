@@ -174,19 +174,28 @@ add_filter('the_content', 'floatmagazin_paywall_inject', 999);
  */
 function floatmagazin_paywall_enqueue_assets() {
     if (is_singular(array('boote', 'leute', 'orte', 'dinge'))) {
-        wp_enqueue_style(
-            'floatmagazin-paywall-style',
-            plugins_url('assets/paywall.css', __FILE__),
-            array(),
-            '1.2'
-        );
-        wp_enqueue_script(
-            'floatmagazin-paywall-script',
-            plugins_url('assets/paywall.js', __FILE__),
-            array(),
-            '1.3',
-            true
-        );
+        // Refaire le test d'âge minimum
+        $options = get_option('floatmagazin_paywall_options', array());
+        $age_minimum = isset($options['age_minimum']) ? (int)$options['age_minimum'] : 14;
+        $publication_date = get_the_time('U');
+        $date_limit = strtotime("-{$age_minimum} days");
+        
+        if ($publication_date <= $date_limit) {
+            // Seulement si l’article est plus vieux que le seuil
+            wp_enqueue_style(
+                'floatmagazin-paywall-style',
+                plugins_url('assets/paywall.css', __FILE__),
+                array(),
+                '1.2'
+            );
+            wp_enqueue_script(
+                'floatmagazin-paywall-script',
+                plugins_url('assets/paywall.js', __FILE__),
+                array(),
+                '1.3',
+                true
+            );
+        }
     }
 }
 add_action('wp_enqueue_scripts', 'floatmagazin_paywall_enqueue_assets');
