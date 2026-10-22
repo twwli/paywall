@@ -27,11 +27,15 @@ function openPaywall() {
     const paywallMessage = document.getElementById('vs-access-message');
     const bottomPagination = document.getElementById('bottom-pagination');
 
-    // Masquer le contenu
-    if (paywallContainer) {
-        paywallContainer.classList.remove('content-visible');
-        console.log("paywall.js: #vs-access-container : content-visible removed.");
+    // Pas de paywall sur cette page → ne rien faire
+    if (!paywallContainer) {
+        console.log("paywall.js: No paywall on this page. Skipping.");
+        return;
     }
+
+    // Masquer le contenu
+    paywallContainer.classList.remove('content-visible');
+    console.log("paywall.js: #vs-access-container : content-visible removed.");
 
     // Masquer la pagination du bas
     if (bottomPagination) {
